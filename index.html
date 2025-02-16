@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>
+            TODO
+        </title>
+    </head>
+    <script>
+        function addTodo(){
+            const a = document.getElementById("title").value;
+            const b = document.getElementById("description").value;
+
+            if(a !="" && b!= ""){
+            const originalItem = document.getElementById("todo").innerHTML
+            const btnlength = document.getElementsByTagName("button").length
+
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+
+            const newTask = {a,b};
+
+            tasks.push(newTask)
+            localStorage.setItem("tasks" , JSON.stringify(tasks))
+            localStoring();
+            
+            // console.log(btnlength)
+            // console.log(a)
+            // console.log(b)
+
+            document.getElementById("title").value = '';
+            document.getElementById("description").value = '';
+
+            }
+            else{
+                if(a == "") alert("Enter some task you idiot")
+                else alert("enter some bloody description")
+            }
+        }
+        
+
+        function localStoring(){
+
+            const rootDiv = document.getElementById("todo");
+            rootDiv.innerHTML = "";
+
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+
+            tasks.forEach((task , index) => {
+                document.getElementById("todo").innerHTML +=  
+            `<div id = "${index}">
+                <br />
+                <div>task : ${task.a}</div>
+                <div>desc : ${task.b}</div>
+                <button onclick = "editHandle()">edit</button>
+                <button onclick = "clickHandle(${index})">Mark as done</button>
+            </div>`                
+            });
+        }
+
+        function clickHandle(id){
+            console.log(JSON.parse(id))
+            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+            taskArray.splice(id,1)
+            localStorage.setItem("tasks",JSON.stringify(taskArray))
+
+            localStoring()
+        } 
+    </script>
+    <body onload="localStoring()">
+        <div>
+        <input id="title" type="text" placeholder="title"></input>
+        <br></br>
+        <input id="description" type="text" placeholder="description"></input>
+        <br></br>
+        <button onclick="addTodo()">Add todo</button>
+        </div>
+        <div id="todo"></div>
+    </body>
+</html>
