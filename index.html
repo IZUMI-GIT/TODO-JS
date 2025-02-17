@@ -10,9 +10,7 @@
             const b = document.getElementById("description").value;
 
             if(a !="" && b!= ""){
-            const originalItem = document.getElementById("todo").innerHTML
-            const btnlength = document.getElementsByTagName("button").length
-
+            
             let tasks = JSON.parse(localStorage.getItem("tasks")) || []
 
             const newTask = {a,b};
@@ -49,7 +47,7 @@
                 <br />
                 <div>task : ${task.a}</div>
                 <div>desc : ${task.b}</div>
-                <button onclick = "editHandle()">edit</button>
+                <button onclick = "editHandle(${index})">edit</button>
                 <button onclick = "clickHandle(${index})">Mark as done</button>
             </div>`                
             });
@@ -62,7 +60,9 @@
             localStorage.setItem("tasks",JSON.stringify(taskArray))
 
             localStoring()
-        } 
+        }
+
+        
     </script>
     <body onload="localStoring()">
         <div>
