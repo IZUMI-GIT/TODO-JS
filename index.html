@@ -51,15 +51,102 @@
                 <button onclick = "clickHandle(${index})">Mark as done</button>
             </div>`                
             });
+
+
+            const crossedDiv = document.getElementById("crossedTodo")
+            crossedDiv.innerHTML = "";
+
+            let crossedTasks = JSON.parse(localStorage.getItem("crossedTasks")) || [];
+
+            crossedTasks.forEach((task, index) => {
+                document.getElementById("crossedTodo").innerHTML += `
+                <br />
+                <div id=${index}>Completed Tasks : <br />
+                <div>task : ${task.a}</div>
+                <div>desc : ${task.b}</div>
+                </div>
+                `
+            });
         }
 
+        // function crossedTasks() {
+        //     const rootDiv = document.getElementById("crossedTodo")
+        //     rootDiv.innerHTML = "";
+
+        //     let crossedTasks = JSON.parse(localStorage.getItem("crossedTasks"));
+
+        //     crossedTasks.forEach((task, index) => {
+        //         rootDiv.innerHTML += `
+        //         <div id=${index}>
+        //         <div>task : ${task.a}</div>
+        //         <div>desc : ${task.b}</div>
+        //         </div>
+        //         `
+        //     });
+        // }
+
+        // function clickHandle(id){
+        //     console.log(JSON.parse(id))
+        //     let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+        //     let x = taskArray.splice(id,1)
+        //     console.log(x)
+        //     localStorage.setItem("tasks",JSON.stringify(taskArray))
+        //     localStoring()
+
+        // }
+
         function clickHandle(id){
-            console.log(JSON.parse(id))
             let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
-            taskArray.splice(id,1)
+            let x = taskArray.splice(id,1);
+            
+            let crossedArray = JSON.parse(localStorage.getItem("crossedTasks")) || [];
+            console.log(x[0])
+            let arr = x[0]
+            console.log(arr)
+            crossedArray.push(arr)
+
+            localStorage.setItem("tasks" , JSON.stringify(taskArray))
+            localStorage.setItem("crossedTasks", JSON.stringify(crossedArray))
+            localStoring();
+
+            // crossedTasks();
+        }
+
+    
+
+
+        function editHandle(id){
+
+            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            document.getElementById(id).innerHTML = `
+            <br />
+            <label for="task${id}">task: </label>
+            <input type="text" id="task${id}" value="${taskArray[id].a}" />
+            <br />
+            <label for="desc${id}">desc: </label>
+            <input type="text" id="desc${id}" value="${taskArray[id].b}" />
+            <button onClick = "saveHandle(${id})">save</button>
+            <button onClick = "localStoring()">cancel</button>
+            `            
+        }
+
+        function saveHandle(id){
+            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            let a = document.getElementById(`task${id}`).value;
+            let b = document.getElementById(`desc${id}`).value;
+
+            console.log({a, b})
+            if(a != '' && b != ''){
+                taskArray[id] = {a, b}
+            }else{
+                alert("Fill all the details")
+            }
+            
             localStorage.setItem("tasks",JSON.stringify(taskArray))
 
-            localStoring()
+            localStoring();
         }
 
         
@@ -73,5 +160,6 @@
         <button onclick="addTodo()">Add todo</button>
         </div>
         <div id="todo"></div>
+        <div id="crossedTodo" style="text-decoration: line-through"></div>
     </body>
 </html>
