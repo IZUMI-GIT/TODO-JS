@@ -6,14 +6,14 @@
     </head>
     <script>
         function addTodo(){
-            const a = document.getElementById("title").value;
-            const b = document.getElementById("description").value;
+            const taskTitle = document.getElementById("title").value;
+            const taskDesc = document.getElementById("description").value;
 
-            if(a !="" && b!= ""){
+            if(taskTitle !="" && taskDesc!= ""){
             
             let tasks = JSON.parse(localStorage.getItem("tasks")) || []
 
-            const newTask = {a,b};
+            const newTask = {taskTitle,taskDesc};
 
             tasks.push(newTask)
             localStorage.setItem("tasks" , JSON.stringify(tasks))
@@ -28,7 +28,7 @@
 
             }
             else{
-                if(a == "") alert("Enter some task you idiot")
+                if(taskTitle == "") alert("Enter some task you idiot")
                 else alert("enter some bloody description")
             }
         }
@@ -42,31 +42,58 @@
             let tasks = JSON.parse(localStorage.getItem("tasks")) || []
 
             tasks.forEach((task , index) => {
-                document.getElementById("todo").innerHTML +=  
-            `<div id = "${index}">
-                <br />
-                <div>task : ${task.a}</div>
-                <div>desc : ${task.b}</div>
-                <button onclick = "editHandle(${index})">edit</button>
-                <button onclick = "clickHandle(${index})">Mark as done</button>
-            </div>`                
-            });
+
+                const containerDiv = document.createElement('div')
+                const taskIp = document.createElement('div')
+                const desc = document.createElement('div')
+                const editBtn = document.createElement('button')
+                const doneBtn = document.createElement('button')
+                
+                containerDiv.innerHTML = '<br />'
+                taskIp.innerText = `task : ${task.taskTitle}`
+                desc.innerText = `description : ${task.taskDesc}`
+                editBtn.innerText = "Edit"
+                doneBtn.innerText = "Mark as Done"
+
+                editBtn.addEventListener("click" , ()=>editHandle(index))
+                doneBtn.addEventListener("click" , () => clickHandle(index))
+
+                rootDiv.appendChild(containerDiv)
+                containerDiv.appendChild(taskIp);
+                containerDiv.appendChild(desc);
+                containerDiv.appendChild(editBtn);
+                containerDiv.appendChild(doneBtn);
+            })
+            //     document.getElementById("todo").innerHTML +=  
+            // `<div id = "t${index}">
+            //     <br />
+            //     <div>task : ${task.taskTitle}</div>
+            //     <div>desc : ${task.taskDesc}</div>
+            //     <button onclick = "editHandle(${index})">edit</button>
+            //     <button onclick = "clickHandle(${index})">Mark as done</button>
+            // </div>`                
+            // });
 
 
             const crossedDiv = document.getElementById("crossedTodo")
-            crossedDiv.innerHTML = "";
 
             let crossedTasks = JSON.parse(localStorage.getItem("crossedTasks")) || [];
 
+            if(crossedTasks == 0) {
+                const non = document.createElement('div');
+                non.innerText = 'none';
+                crossedDiv.appendChild(non)
+            }
+            else{
             crossedTasks.forEach((task, index) => {
                 document.getElementById("crossedTodo").innerHTML += `
                 <br />
-                <div id=${index}>Completed Tasks : <br />
-                <div>task : ${task.a}</div>
-                <div>desc : ${task.b}</div>
+                <div><s>task : ${task.taskTitle}</s></div>
+                <div><s>desc : ${task.taskDesc}</s></div>
                 </div>
                 `
             });
+        }
         }
 
         // function crossedTasks() {
@@ -119,13 +146,13 @@
 
             let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
 
-            document.getElementById(id).innerHTML = `
+            document.getElementById(`t${id}`).innerHTML = `
             <br />
             <label for="task${id}">task: </label>
-            <input type="text" id="task${id}" value="${taskArray[id].a}" />
+            <input type="text" id="task${id}" value="${taskArray[id].taskTitle}" />
             <br />
             <label for="desc${id}">desc: </label>
-            <input type="text" id="desc${id}" value="${taskArray[id].b}" />
+            <input type="text" id="desc${id}" value="${taskArray[id].taskDesc}" />
             <button onClick = "saveHandle(${id})">save</button>
             <button onClick = "localStoring()">cancel</button>
             `            
@@ -134,12 +161,12 @@
         function saveHandle(id){
             let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
 
-            let a = document.getElementById(`task${id}`).value;
-            let b = document.getElementById(`desc${id}`).value;
+            let taskTitle = document.getElementById(`task${id}`).value;
+            let taskDesc = document.getElementById(`desc${id}`).value;
 
-            console.log({a, b})
-            if(a != '' && b != ''){
-                taskArray[id] = {a, b}
+            console.log({taskTitle, taskDesc})
+            if(taskTitle != '' && taskDesc != ''){
+                taskArray[id] = {taskTitle, taskDesc}
             }else{
                 alert("Fill all the details")
             }
@@ -160,6 +187,6 @@
         <button onclick="addTodo()">Add todo</button>
         </div>
         <div id="todo"></div>
-        <div id="crossedTodo" style="text-decoration: line-through"></div>
+        <div id="crossedTodo"><br /> <b style="text-decoration: underline;">Completed Tasks : </b><br /></div>
     </body>
 </html>
