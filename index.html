@@ -5,13 +5,22 @@
         </title>
     </head>
     <script>
+        function getStoredTasks(){
+            return JSON.parse(localStorage.getItem("tasks"))
+        }
+
+        function getCompleteTasks(){
+            return JSON.parse(localStorage.getItem("crossedTasks"))
+        }
+
+
         function addTodo(){
             const taskTitle = document.getElementById("title").value;
             const taskDesc = document.getElementById("description").value;
 
-            if(taskTitle !="" && taskDesc!= ""){
+            if(taskTitle.trim() !="" && taskDesc.trim() != ""){
             
-            let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+            let tasks = getStoredTasks() || []
 
             const newTask = {taskTitle,taskDesc};
 
@@ -36,34 +45,39 @@
 
         function localStoring(){
 
+            let tasks = getStoredTasks() || []
             const rootDiv = document.getElementById("todo");
-            rootDiv.innerHTML = "";
+            
 
-            let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+            if(tasks.length != 0 ){
+                rootDiv.innerHTML = "";
+                tasks.forEach((task , index) => {
 
-            tasks.forEach((task , index) => {
+                    const containerDiv = document.createElement('div')
+                    const taskIp = document.createElement('div')
+                    const desc = document.createElement('div')
+                    const editBtn = document.createElement('button')
+                    const doneBtn = document.createElement('button')
+                    
+                    containerDiv.setAttribute("id", `t${index}`)
+                    containerDiv.innerHTML = '<br />'
+                    taskIp.innerText = `task : ${task.taskTitle}`
+                    desc.innerText = `description : ${task.taskDesc}`
+                    editBtn.innerText = "Edit"
+                    doneBtn.innerText = "Mark as Done"
 
-                const containerDiv = document.createElement('div')
-                const taskIp = document.createElement('div')
-                const desc = document.createElement('div')
-                const editBtn = document.createElement('button')
-                const doneBtn = document.createElement('button')
-                
-                containerDiv.innerHTML = '<br />'
-                taskIp.innerText = `task : ${task.taskTitle}`
-                desc.innerText = `description : ${task.taskDesc}`
-                editBtn.innerText = "Edit"
-                doneBtn.innerText = "Mark as Done"
+                    editBtn.addEventListener("click" , () => editHandle(index))
+                    doneBtn.addEventListener("click" , () => clickHandle(index))
 
-                editBtn.addEventListener("click" , ()=>editHandle(index))
-                doneBtn.addEventListener("click" , () => clickHandle(index))
-
-                rootDiv.appendChild(containerDiv)
-                containerDiv.appendChild(taskIp);
-                containerDiv.appendChild(desc);
-                containerDiv.appendChild(editBtn);
-                containerDiv.appendChild(doneBtn);
-            })
+                    rootDiv.appendChild(containerDiv)
+                    containerDiv.appendChild(taskIp);
+                    containerDiv.appendChild(desc);
+                    containerDiv.appendChild(editBtn);
+                    containerDiv.appendChild(doneBtn);
+                })
+            }else{
+                rootDiv.innerText = 'none'
+            }
             //     document.getElementById("todo").innerHTML +=  
             // `<div id = "t${index}">
             //     <br />
@@ -75,25 +89,43 @@
             // });
 
 
+            let crossedTasks = getCompleteTasks() || [];
             const crossedDiv = document.getElementById("crossedTodo")
 
-            let crossedTasks = JSON.parse(localStorage.getItem("crossedTasks")) || [];
+            if(crossedTasks.length != 0){
+                crossedDiv.innerHTML = ''
 
-            if(crossedTasks == 0) {
-                const non = document.createElement('div');
-                non.innerText = 'none';
-                crossedDiv.appendChild(non)
+                crossedTasks.forEach((task, index) => {
+                    const containerDiv = document.createElement('div')
+                    const taskIp = document.createElement('div')
+                    const desc = document.createElement('div')
+                    const deleteBtn = document.createElement('button')
+                    
+                    containerDiv.setAttribute("id", `c${index}`)
+                    containerDiv.innerHTML = '<br />'
+                    taskIp.innerText = `task : ${task.taskTitle}`
+                    desc.innerText = `description : ${task.taskDesc}`
+                    deleteBtn.innerText = "Delete"
+
+                    deleteBtn.addEventListener("click" , () => deleteHandle(index))
+
+                    crossedDiv.appendChild(containerDiv)
+                    containerDiv.appendChild(taskIp);
+                    containerDiv.appendChild(desc);
+                    containerDiv.appendChild(deleteBtn);
+
+                // crossedTasks.forEach((task, index) => {
+                //     document.getElementById("crossedTodo").innerHTML += `
+                //     <br />
+                //     <div><s>task : ${task.taskTitle}</s></div>
+                //     <div><s>desc : ${task.taskDesc}</s></div>
+                //     </div>
+                //     `
+
+                });
+            }else{
+                crossedDiv.innerText = 'no tasks available'
             }
-            else{
-            crossedTasks.forEach((task, index) => {
-                document.getElementById("crossedTodo").innerHTML += `
-                <br />
-                <div><s>task : ${task.taskTitle}</s></div>
-                <div><s>desc : ${task.taskDesc}</s></div>
-                </div>
-                `
-            });
-        }
         }
 
         // function crossedTasks() {
@@ -123,10 +155,10 @@
         // }
 
         function clickHandle(id){
-            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+            let taskArray = getStoredTasks() || [];
             let x = taskArray.splice(id,1);
             
-            let crossedArray = JSON.parse(localStorage.getItem("crossedTasks")) || [];
+            let crossedArray = getCompleteTasks() || [];
             console.log(x[0])
             let arr = x[0]
             console.log(arr)
@@ -134,6 +166,9 @@
 
             localStorage.setItem("tasks" , JSON.stringify(taskArray))
             localStorage.setItem("crossedTasks", JSON.stringify(crossedArray))
+
+            console.log(taskArray)
+            console.log(crossedArray)
             localStoring();
 
             // crossedTasks();
@@ -144,7 +179,7 @@
 
         function editHandle(id){
 
-            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+            let taskArray = getStoredTasks() || [];
 
             document.getElementById(`t${id}`).innerHTML = `
             <br />
@@ -159,7 +194,7 @@
         }
 
         function saveHandle(id){
-            let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
+            let taskArray = getStoredTasks() || [];
 
             let taskTitle = document.getElementById(`task${id}`).value;
             let taskDesc = document.getElementById(`desc${id}`).value;
@@ -176,17 +211,33 @@
             localStoring();
         }
 
+        function deleteHandle(id){
+            let completeTaskArray = getCompleteTasks() || [];
+            completeTaskArray.splice(id,1);
+
+            localStorage.setItem("crossedTasks",JSON.stringify(completeTaskArray));
+
+            localStoring()
+        }
+
         
     </script>
     <body onload="localStoring()">
         <div>
-        <input id="title" type="text" placeholder="title"></input>
-        <br></br>
-        <input id="description" type="text" placeholder="description"></input>
-        <br></br>
-        <button onclick="addTodo()">Add todo</button>
+            <input id="title" type="text" placeholder="title"></input>
+            <br></br>
+            <input id="description" type="text" placeholder="description"></input>
+            <br></br>
+            <button onclick="addTodo()">Add todo</button>
         </div>
+            <br />
+                <b style="text-decoration: underline;">Tasks : </b>
+            <br />
         <div id="todo"></div>
-        <div id="crossedTodo"><br /> <b style="text-decoration: underline;">Completed Tasks : </b><br /></div>
+        <br />
+        <div>
+            <b style="text-decoration: underline;">Completed Tasks : </b>
+        </div>
+        <div id="crossedTodo"></div>
     </body>
 </html>
