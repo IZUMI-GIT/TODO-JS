@@ -4,6 +4,12 @@
             TODO
         </title>
     </head>
+    <style>
+        .dark-mode{
+            background-color: black;
+            color: white;
+        }
+    </style>
     <script>
         function getStoredTasks(){
             return JSON.parse(localStorage.getItem("tasks"))
@@ -69,14 +75,21 @@
                     editBtn.addEventListener("click" , () => editHandle(index))
                     doneBtn.addEventListener("click" , () => clickHandle(index))
 
+                    let wrapperList = [taskIp, desc, editBtn, doneBtn];
+
                     rootDiv.appendChild(containerDiv)
-                    containerDiv.appendChild(taskIp);
-                    containerDiv.appendChild(desc);
-                    containerDiv.appendChild(editBtn);
-                    containerDiv.appendChild(doneBtn);
+
+                    for(let i=0;i<wrapperList.length; i++){
+                        containerDiv.appendChild(wrapperList[i])
+                    }
+
+                    // containerDiv.appendChild(taskIp);
+                    // containerDiv.appendChild(desc);
+                    // containerDiv.appendChild(editBtn);
+                    // containerDiv.appendChild(doneBtn);
                 })
             }else{
-                rootDiv.innerText = 'none'
+                rootDiv.innerText = 'no tasks available'
             }
             //     document.getElementById("todo").innerHTML +=  
             // `<div id = "t${index}">
@@ -109,10 +122,16 @@
 
                     deleteBtn.addEventListener("click" , () => deleteHandle(index))
 
+                    wrapperList = [taskIp, desc, deleteBtn]
                     crossedDiv.appendChild(containerDiv)
-                    containerDiv.appendChild(taskIp);
-                    containerDiv.appendChild(desc);
-                    containerDiv.appendChild(deleteBtn);
+
+                    for(let i = 0;i<wrapperList.length; i++){
+                        containerDiv.appendChild(wrapperList[i])
+                    }
+
+                    // containerDiv.appendChild(taskIp);
+                    // containerDiv.appendChild(desc);
+                    // containerDiv.appendChild(deleteBtn);
 
                 // crossedTasks.forEach((task, index) => {
                 //     document.getElementById("crossedTodo").innerHTML += `
@@ -124,7 +143,7 @@
 
                 });
             }else{
-                crossedDiv.innerText = 'no tasks available'
+                crossedDiv.innerText = 'none'
             }
         }
 
@@ -204,6 +223,7 @@
                 taskArray[id] = {taskTitle, taskDesc}
             }else{
                 alert("Fill all the details")
+                
             }
             
             localStorage.setItem("tasks",JSON.stringify(taskArray))
@@ -220,9 +240,15 @@
             localStoring()
         }
 
+        function darkHandle(){
+            var elem = document.body;
+            elem.classList.toggle("dark-mode")
+        }
+
         
     </script>
     <body onload="localStoring()">
+        <button id="mode" style="float: right;" onclick="darkHandle()">Toggle darkmode</button>
         <div>
             <input id="title" type="text" placeholder="title"></input>
             <br></br>
