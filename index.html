@@ -9,6 +9,9 @@
             background-color: black;
             color: white;
         }
+        #mode {
+            float: right;
+        }
     </style>
     <script>
         function getStoredTasks(){
@@ -46,6 +49,13 @@
                 if(taskTitle == "") alert("Enter some task you idiot")
                 else alert("enter some bloody description")
             }
+        }
+
+        function clearTodos() {
+            localStorage.removeItem("tasks");
+            localStorage.removeItem("crossedTasks")
+
+            localStoring();
         }
         
 
@@ -113,22 +123,29 @@
                     const taskIp = document.createElement('div')
                     const desc = document.createElement('div')
                     const deleteBtn = document.createElement('button')
+                    const undoBtn = document.createElement('button')
                     
                     containerDiv.setAttribute("id", `c${index}`)
                     containerDiv.innerHTML = '<br />'
                     taskIp.innerText = `task : ${task.taskTitle}`
                     desc.innerText = `description : ${task.taskDesc}`
+                    undoBtn.innerText = 'Undo'
                     deleteBtn.innerText = "Delete"
 
+                    undoBtn.onclick = () => undoHandle(index)
                     deleteBtn.addEventListener("click" , () => deleteHandle(index))
 
-                    wrapperList = [taskIp, desc, deleteBtn]
+                    wrapperList = [taskIp, desc, undoBtn, deleteBtn]
                     crossedDiv.appendChild(containerDiv)
 
                     for(let i = 0;i<wrapperList.length; i++){
                         containerDiv.appendChild(wrapperList[i])
+                        containerDiv.style.textDecoration = "line-through"
                     }
 
+                    let promise1 = new Promise((resolve) => {
+                        setTimeout(()=>deleteHandle(index), 11000)
+                    })
                     // containerDiv.appendChild(taskIp);
                     // containerDiv.appendChild(desc);
                     // containerDiv.appendChild(deleteBtn);
@@ -240,21 +257,36 @@
             localStoring()
         }
 
+        function undoHandle(id){
+            let completeTaskArray = getCompleteTasks() || []
+            let taskArray = getStoredTasks() || []
+
+            let x = completeTaskArray.splice(id, 1)
+            let arr = x[0]
+            taskArray.push(arr);
+
+            localStorage.setItem("tasks", JSON.stringify(taskArray))
+            localStorage.setItem("crossedTasks", JSON.stringify(completeTaskArray))
+
+            localStoring();
+        }
+
         function darkHandle(){
             var elem = document.body;
-            elem.classList.toggle("dark-mode")
+            elem.classList.toggle("dark-mode")    
         }
 
         
     </script>
     <body onload="localStoring()">
-        <button id="mode" style="float: right;" onclick="darkHandle()">Toggle darkmode</button>
+        <button id="mode" onclick="darkHandle()">Toggle darkmode</button>
         <div>
             <input id="title" type="text" placeholder="title"></input>
             <br></br>
             <input id="description" type="text" placeholder="description"></input>
             <br></br>
             <button onclick="addTodo()">Add todo</button>
+            <button onclick="clearTodos()">Clear All</button>
         </div>
             <br />
                 <b style="text-decoration: underline;">Tasks : </b>
@@ -265,5 +297,6 @@
             <b style="text-decoration: underline;">Completed Tasks : </b>
         </div>
         <div id="crossedTodo"></div>
+        
     </body>
 </html>
