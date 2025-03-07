@@ -1,3 +1,5 @@
+let count = 0;
+
 function getStoredTasks(){
     return JSON.parse(localStorage.getItem("tasks"))
 }
@@ -6,53 +8,12 @@ function getCompleteTasks(){
     return JSON.parse(localStorage.getItem("crossedTasks"))
 }
 
-
-function addTodo(){
-    const taskTitle = document.getElementById("title").value;
-    const taskDesc = document.getElementById("description").value;
-
-    // if(taskTitle.trim() !="" && taskDesc.trim() != ""){
-    
-    let tasks = getStoredTasks() || []
-
-    const newTask = {taskTitle,taskDesc};
-
-    tasks.push(newTask)
-    localStorage.setItem("tasks" , JSON.stringify(tasks))
-    localStoring();
-    
-    // console.log(btnlength)
-    // console.log(a)
-    // console.log(b)
-
-    document.getElementById("title").value = '';
-    document.getElementById("description").value = '';
-
-    }
-    // else{
-    //     if(taskTitle == "") alert("Enter some task you idiot")
-    //     else alert("enter some bloody description")
-    // }
-// }
-
-function clearTodos() {
-    localStorage.removeItem("tasks");
-    localStorage.removeItem("crossedTasks")
-
-    localStoring();
-}
-
-
-function localStoring(){
-
-    let tasks = getStoredTasks() || []
-    const rootDiv = document.getElementById("todo");
-    
+function renderTasks(tasks, rootDiv){
 
     if(tasks.length != 0 ){
         rootDiv.innerHTML = "";
         tasks.forEach((task , index) => {
-
+            console.log(count)
             const containerDiv = document.createElement('div')
             const taskIp = document.createElement('div')
             const desc = document.createElement('div')
@@ -67,7 +28,7 @@ function localStoring(){
             doneBtn.innerText = "Mark as Done"
 
             editBtn.addEventListener("click" , () => editHandle(index))
-            doneBtn.addEventListener("click" , () => clickHandle(index))
+            doneBtn.addEventListener("click" , () => doneHandle(index))
 
             let wrapperList = [taskIp, desc, editBtn, doneBtn];
 
@@ -76,7 +37,25 @@ function localStoring(){
             for(let i=0;i<wrapperList.length; i++){
                 containerDiv.appendChild(wrapperList[i])
             }
+           
+            //Duedate feature
+            let remainingTime = task.dueTime - Date.now()
+            console.log(remainingTime)
+            if(!task.dueStatus && remainingTime > 0){
+                setTimeout(() => {
+                    console.log("index = " + index)
+                    task.dueStatus = true;
+                    localStorage.setItem("tasks",JSON.stringify(tasks))
 
+                    let elem = document.getElementById(`t${index}`)
+                    if(elem){
+                        elem.style.color = 'red'
+                    }
+                },remainingTime)
+            }else{
+                console.log("already in due , index : " + index)
+                document.getElementById(`t${index}`).style.color = "red";
+            }
             // containerDiv.appendChild(taskIp);
             // containerDiv.appendChild(desc);
             // containerDiv.appendChild(editBtn);
@@ -85,13 +64,81 @@ function localStoring(){
     }else{
         rootDiv.innerText = 'no tasks available'
     }
+}
+
+function addTodo(){
+    const taskTitle = document.getElementById("title").value;
+    const taskDesc = document.getElementById("description").value;
+    const taskDueDate = new Date(document.getElementById("dueDate").value);
+    const taskPriority = document.getElementById("priority").value.toUpperCase()
+
+    const givenTime = Date.parse(new Date(taskDueDate));
+
+    if(taskTitle.trim() !="" && taskDesc.trim() != ""){
+    
+    let tasks = getStoredTasks() || []
+
+    const newTask = {taskTitle,taskDesc,dueTime : givenTime, dueStatus : false, taskPriority};
+
+    tasks.push(newTask)
+    localStorage.setItem("tasks" , JSON.stringify(tasks))
+    localStoring();
+    
+    // console.log(btnlength)
+    // console.log(a)
+    // console.log(b)
+
+    document.getElementById("title").value = '';
+    document.getElementById("description").value = '';
+    document.getElementById("dueDate").value = '';
+
+    }
+    // else{
+    //     if(taskTitle == "") alert("Enter some task you idiot")
+    //     else alert("enter some bloody description")
+    // }
+}
+
+function clearTodos() {
+    localStorage.removeItem("tasks");
+    localStorage.removeItem("crossedTasks")
+
+    document.getElementById("todo").innerHTML = "no tasks available";
+    document.getElementById('filter').value = "All"    
+}
+
+function filtering(){
+    let filterValue = document.getElementById('filter').value.toUpperCase();
+    let unfilteredTasks = getStoredTasks() || [];
+
+    console.log(typeof filterValue)
+    if(filterValue === "ALL"){
+        tasks = unfilteredTasks
+    }else{
+        tasks =  unfilteredTasks.filter((x) => {
+            return x.taskPriority == filterValue
+        })
+    }
+
+    console.log(tasks)
+    const rootDiv = document.getElementById("todo"); 
+    renderTasks(tasks, rootDiv)
+}
+
+
+function localStoring(){
+    // console.log(x)
+    let tasks = getStoredTasks() || []
+    const rootDiv = document.getElementById("todo"); 
+
+    renderTasks(tasks, rootDiv)
     //     document.getElementById("todo").innerHTML +=  
     // `<div id = "t${index}">
     //     <br />
     //     <div>task : ${task.taskTitle}</div>
     //     <div>desc : ${task.taskDesc}</div>
     //     <button onclick = "editHandle(${index})">edit</button>
-    //     <button onclick = "clickHandle(${index})">Mark as done</button>
+    //     <button onclick = "doneHandle(${index})">Mark as done</button>
     // </div>`                
     // });
 
@@ -127,9 +174,7 @@ function localStoring(){
                 containerDiv.style.textDecoration = "line-through"
             }
 
-            let promise1 = new Promise((resolve) => {
-                setTimeout(()=>deleteHandle(index), 11000)
-            })
+            setTimeout(()=>deleteHandle(index), 11000)   //Auto-delete
             // containerDiv.appendChild(taskIp);
             // containerDiv.appendChild(desc);
             // containerDiv.appendChild(deleteBtn);
@@ -146,6 +191,13 @@ function localStoring(){
     }else{
         crossedDiv.innerText = 'none'
     }
+
+    let mode = JSON.parse(localStorage.getItem("mode")) || [];
+    count++;
+    if(mode.value == 1 && count == 1){
+        darkHandle();
+    }    
+    
 }
 
 // function crossedTasks() {
@@ -164,7 +216,7 @@ function localStoring(){
 //     });
 // }
 
-// function clickHandle(id){
+// function doneHandle(id){
 //     console.log(JSON.parse(id))
 //     let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
 //     let x = taskArray.splice(id,1)
@@ -174,7 +226,7 @@ function localStoring(){
 
 // }
 
-function clickHandle(id){
+function doneHandle(id){
     let taskArray = getStoredTasks() || [];
     let x = taskArray.splice(id,1);
     
@@ -198,7 +250,6 @@ function clickHandle(id){
 
 
 function editHandle(id){
-
     let taskArray = getStoredTasks() || [];
 
     document.getElementById(`t${id}`).innerHTML = `
@@ -224,7 +275,6 @@ function saveHandle(id){
         taskArray[id] = {taskTitle, taskDesc}
     }else{
         alert("Fill all the details")
-        
     }
     
     localStorage.setItem("tasks",JSON.stringify(taskArray))
@@ -257,11 +307,20 @@ function undoHandle(id){
 
 function darkHandle(){
     var elem = document.body;
-    elem.classList.toggle("dark-mode")    
+    elem.classList.toggle("dark-mode")
 }
 
 document.getElementById("addTodoBtn").addEventListener('click', addTodo);
 document.getElementById("clearTodosBtn").addEventListener('click', () => clearTodos())
 document.getElementById('mode').addEventListener('click', function(){
     darkHandle();
+
+    let mode = JSON.parse(localStorage.getItem("mode")) || [];
+    if(mode.value == 0 || mode.value == undefined){
+        mode = {value : 1}
+    }else{
+        mode = {value : 0}
+    }
+
+    localStorage.setItem("mode", JSON.stringify(mode))
 })

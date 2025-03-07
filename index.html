@@ -23,12 +23,31 @@
             <label for="description">Description : </label>
             <input id="description" type="text" placeholder="description" required>
             <br></br>
+            <label for="dueDate">Due date : </label>
+            <input id="dueDate" type="datetime-local"/>
+            <br></br>
+            <label for="priority">Priority : </label>
+            <select id="priority">
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+            </select>
+            <br><br />
             <button id="addTodoBtn" >Add todo</button>
             <button id="clearTodosBtn" >Clear All</button>
         </form>
                 <b style="text-decoration: underline;">Tasks : </b>
+                <select onchange="filtering()" id="filter">
+                    <option>All</option>
+                    <option>High</option>
+                    <option>Medium</option>
+                    <option>Low</option>
+                </select>
             <br />
+        <div>
         <div id="todo"></div>
+        </div>
+        
         <br />
         <div>
             <b style="text-decoration: underline;">Completed Tasks : </b>
