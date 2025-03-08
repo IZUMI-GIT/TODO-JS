@@ -13,7 +13,6 @@ function renderTasks(tasks, rootDiv){
     if(tasks.length != 0 ){
         rootDiv.innerHTML = "";
         tasks.forEach((task , index) => {
-            console.log(count)
             const containerDiv = document.createElement('div')
             const taskIp = document.createElement('div')
             const desc = document.createElement('div')
@@ -56,10 +55,6 @@ function renderTasks(tasks, rootDiv){
                 console.log("already in due , index : " + index)
                 document.getElementById(`t${index}`).style.color = "red";
             }
-            // containerDiv.appendChild(taskIp);
-            // containerDiv.appendChild(desc);
-            // containerDiv.appendChild(editBtn);
-            // containerDiv.appendChild(doneBtn);
         })
     }else{
         rootDiv.innerText = 'no tasks available'
@@ -69,34 +64,31 @@ function renderTasks(tasks, rootDiv){
 function addTodo(){
     const taskTitle = document.getElementById("title").value;
     const taskDesc = document.getElementById("description").value;
-    const taskDueDate = new Date(document.getElementById("dueDate").value);
+    const taskDueDate = new Date(document.getElementById("dueDate").value)
     const taskPriority = document.getElementById("priority").value.toUpperCase()
+    const taskTags = document.getElementById("tags").value.toUpperCase()
 
     const givenTime = Date.parse(new Date(taskDueDate));
 
     if(taskTitle.trim() !="" && taskDesc.trim() != ""){
     
     let tasks = getStoredTasks() || []
-
-    const newTask = {taskTitle,taskDesc,dueTime : givenTime, dueStatus : false, taskPriority};
+    if(givenTime >= Date.now()){
+    const newTask = {taskTitle,taskDesc,dueTime : givenTime, dueStatus : false, taskPriority, taskTags};
+    }else{
+        alert("duedate is already over")
+    }
 
     tasks.push(newTask)
     localStorage.setItem("tasks" , JSON.stringify(tasks))
     localStoring();
-    
-    // console.log(btnlength)
-    // console.log(a)
-    // console.log(b)
+    filtering();
 
     document.getElementById("title").value = '';
     document.getElementById("description").value = '';
     document.getElementById("dueDate").value = '';
 
     }
-    // else{
-    //     if(taskTitle == "") alert("Enter some task you idiot")
-    //     else alert("enter some bloody description")
-    // }
 }
 
 function clearTodos() {
@@ -109,14 +101,23 @@ function clearTodos() {
 
 function filtering(){
     let filterValue = document.getElementById('filter').value.toUpperCase();
+    let tagValue = document.getElementById('taging').value.toUpperCase();
     let unfilteredTasks = getStoredTasks() || [];
 
     console.log(typeof filterValue)
-    if(filterValue === "ALL"){
+    if(filterValue == "ALL" && tagValue == "ALL"){
         tasks = unfilteredTasks
+    }else if(filterValue != "ALL" && tagValue == "ALL"){
+        tasks = unfilteredTasks.filter((x) =>{
+            return x.taskPriority == filterValue;
+        })
+    }else if(filterValue == "ALL" && tagValue != "ALL"){
+        tasks = unfilteredTasks.filter((x) => {
+            return x.taskTags == tagValue;
+        })
     }else{
         tasks =  unfilteredTasks.filter((x) => {
-            return x.taskPriority == filterValue
+            return (x.taskPriority == filterValue && x.taskTags == tagValue)
         })
     }
 
@@ -127,21 +128,10 @@ function filtering(){
 
 
 function localStoring(){
-    // console.log(x)
     let tasks = getStoredTasks() || []
     const rootDiv = document.getElementById("todo"); 
 
-    renderTasks(tasks, rootDiv)
-    //     document.getElementById("todo").innerHTML +=  
-    // `<div id = "t${index}">
-    //     <br />
-    //     <div>task : ${task.taskTitle}</div>
-    //     <div>desc : ${task.taskDesc}</div>
-    //     <button onclick = "editHandle(${index})">edit</button>
-    //     <button onclick = "doneHandle(${index})">Mark as done</button>
-    // </div>`                
-    // });
-
+    renderTasks(tasks, rootDiv) //renderTasks
 
     let crossedTasks = getCompleteTasks() || [];
     const crossedDiv = document.getElementById("crossedTodo")
@@ -175,17 +165,6 @@ function localStoring(){
             }
 
             setTimeout(()=>deleteHandle(index), 11000)   //Auto-delete
-            // containerDiv.appendChild(taskIp);
-            // containerDiv.appendChild(desc);
-            // containerDiv.appendChild(deleteBtn);
-
-        // crossedTasks.forEach((task, index) => {
-        //     document.getElementById("crossedTodo").innerHTML += `
-        //     <br />
-        //     <div><s>task : ${task.taskTitle}</s></div>
-        //     <div><s>desc : ${task.taskDesc}</s></div>
-        //     </div>
-        //     `
 
         });
     }else{
@@ -200,31 +179,6 @@ function localStoring(){
     
 }
 
-// function crossedTasks() {
-//     const rootDiv = document.getElementById("crossedTodo")
-//     rootDiv.innerHTML = "";
-
-//     let crossedTasks = JSON.parse(localStorage.getItem("crossedTasks"));
-
-//     crossedTasks.forEach((task, index) => {
-//         rootDiv.innerHTML += `
-//         <div id=${index}>
-//         <div>task : ${task.a}</div>
-//         <div>desc : ${task.b}</div>
-//         </div>
-//         `
-//     });
-// }
-
-// function doneHandle(id){
-//     console.log(JSON.parse(id))
-//     let taskArray = JSON.parse(localStorage.getItem("tasks")) || [];
-//     let x = taskArray.splice(id,1)
-//     console.log(x)
-//     localStorage.setItem("tasks",JSON.stringify(taskArray))
-//     localStoring()
-
-// }
 
 function doneHandle(id){
     let taskArray = getStoredTasks() || [];
@@ -242,8 +196,6 @@ function doneHandle(id){
     console.log(taskArray)
     console.log(crossedArray)
     localStoring();
-
-    // crossedTasks();
 }
 
 
@@ -308,6 +260,23 @@ function undoHandle(id){
 function darkHandle(){
     var elem = document.body;
     elem.classList.toggle("dark-mode")
+}
+
+function searching(){
+    let rootDiv = document.getElementById('todo')
+    let searchWord = document.getElementById('searching').value.toLowerCase();
+    let taskArray = getStoredTasks() || [];
+
+    console.log(searchWord)
+
+    tasks = taskArray.filter((task)=>{
+        let lowerCaseTask = task.taskTitle.toLowerCase()
+        if(lowerCaseTask.includes(searchWord) || task.taskDesc.toLowerCase().includes(searchWord)){
+            return task
+        }
+    })
+
+    renderTasks(tasks, rootDiv)
 }
 
 document.getElementById("addTodoBtn").addEventListener('click', addTodo);

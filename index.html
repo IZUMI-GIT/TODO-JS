@@ -24,13 +24,20 @@
             <input id="description" type="text" placeholder="description" required>
             <br></br>
             <label for="dueDate">Due date : </label>
-            <input id="dueDate" type="datetime-local"/>
+            <input id="dueDate" type="datetime-local" required/>
             <br></br>
             <label for="priority">Priority : </label>
-            <select id="priority">
+            <select id="priority" required>
                 <option>High</option>
                 <option>Medium</option>
                 <option>Low</option>
+            </select>
+            <br><br />
+            <label for="tags">Tags/Categories : </label>
+            <select id="tags" required>
+                <option>Work</option>
+                <option>Personal</option>
+                <option>Others</option>
             </select>
             <br><br />
             <button id="addTodoBtn" >Add todo</button>
@@ -43,7 +50,13 @@
                     <option>Medium</option>
                     <option>Low</option>
                 </select>
-            <br />
+                <select onchange="filtering()" id="taging">
+                    <option>All</option>
+                    <option>Work</option>
+                    <option>Personal</option>
+                    <option>Others</option>
+                </select>
+                <input type="text" id="searching" oninput="searching()" placeholder="Search..">                
         <div>
         <div id="todo"></div>
         </div>
